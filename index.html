@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        html{
+            height: 100%;
+        }
+        body {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        #map-canvas{
+            height: 100%;
+            width: 100%;
+        }
+        #location{
+            position: fixed;
+            z-index: 3000;
+            margin: 3em;
+            padding: 2em;
+        }
+        #location > input{
+            border: 1px solid gray;
+            padding: 0.25em 0.75em;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            display: inline-block;
+            margin: 2em;
+            font: 100 1em Avenir;
+        }
+    </style>
+    <script src="googlemapsscript.js"></script>
+    <script>
+        var directionsDisplay;
+        var directionsService = new google.maps.DirectionsService();
+        var map;
+        var mapElement;
+
+        function initialize(){
+            var latlong = new google.maps.LatLng(41.850033, -87.6500523);
+            var mapOptions = {
+                zoom: 7,
+                center: latlong
+            };
+            map = new google.maps.Map(mapElement, mapOptions);
+
+            // set up directions display
+            directionsDisplay = new google.maps.DirectionsRenderer();
+            directionsDisplay.setMap(map);
+        }
+
+        function calcRoute(start, end){
+            var request = {
+                origin: start,
+                destination: end,
+                travelMode: google.maps.TravelMode.DRIVING
+            };
+
+            directionsService.route(request, function(response, status){
+                console.log(status);
+
+                if (status == google.maps.DirectionsStatus.OK){
+                    console.log(response);
+                    directionsDisplay.setDirections(response);
+                }
+            });
+
+        }
+
+        window.onload = function(){
+            var location = document.body.children[0];
+            mapElement = document.body.children[1];
+            initialize();
+            var start = document.getElementById('start');
+            navigator.geolocation.getCurrentPosition(function(position){
+                start.value = position.coords.latitude + ', ' + position.coords.longitude;
+            });
+            var end = document.getElementById('end');
+            end.onkeydown = function(e){
+                if(e.keyCode === 13){
+                    calcRoute(start.value, end.value);
+                }
+
+            }
+        };
+
+
+    </script>
+</head>
+<body>
+
+    <div id="location">
+        <input type="text" id="start"/>
+        <input type="text" id="end"/>
+    </div>
+    <div id="map-canvas"></div>
+
+</body>
+</html>
