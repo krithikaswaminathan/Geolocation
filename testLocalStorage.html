@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script>
+        $(function(){
+
+            console.log(localStorage.getItem('cache'));
+
+            $('#btn1').click(function(){
+                getWeather(35,36);
+            });
+            $('#btn2').click(function(){
+                getWeather(25,36);
+            });
+
+
+        });
+
+        window.onunload = function(){
+            localStorage.setItem('cache', JSON.stringify(getWeather.cache));
+        };
+
+        getWeather.cache = localStorage.getItem('cache');
+        function getWeather(lat, lon){
+            var strlatlon = lat + ',' + lon;
+            if(getWeather.cache[strlatlon]){
+                console.log('Have it in cache ... ');
+                return getWeather.cache[strlatlon];
+            } else {
+                console.log('Dont have it in cache, getting from server ... ');
+                $.getJSON('http://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon=' + lon, function(data){
+                    console.log(data);
+                    getWeather.cache[strlatlon] = data;
+                    return getWeather.cache[strlatlon];
+                });
+            }
+        }
+
+        if(window.localStorage){
+            console.log('Local storage is supported ... ');
+            console.log(localStorage.getItem('name'));
+            window.addEventListener('storage', function(){
+                alert('storage event fired ... ');
+            });
+        }
+    </script>
+</head>
+<body id='body'>
+    <button id="btn1">35,36</button>
+    <button id="btn2">25,36</button>
+
+</body>
+</html>
